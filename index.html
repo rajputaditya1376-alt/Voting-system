@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoteSphere - Voting System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h2>✓ VoteSphere</h2>
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#candidates">Candidates</a>
+        <a href="#results">Results</a>
+    </nav>
+</header>
+
+<section class="hero" id="home">
+    <div>
+        <p class="tag">VOTING MANAGEMENT SYSTEM</p>
+        <h1>Your Vote.<br><span>Your Voice.</span></h1>
+        <p>A simple and transparent voting system for everyone.</p>
+        <a href="#candidates" class="btn">Explore Candidates →</a>
+    </div>
+    <div class="hero-icon">🗳️</div>
+</section>
+
+<section class="stats">
+    <div class="stat-card">
+        <h2 id="candidateCount">3</h2>
+        <p>Total Candidates</p>
+    </div>
+    <div class="stat-card">
+        <h2 id="totalVotes">0</h2>
+        <p>Total Demo Votes</p>
+    </div>
+    <div class="stat-card">
+        <h2>Active</h2>
+        <p>Demo Status</p>
+    </div>
+</section>
+
+<section class="section" id="candidates">
+    <p class="tag">MEET THE CANDIDATES</p>
+    <h2>Choose Your Candidate</h2>
+    <p class="description">Select a candidate to cast your demo vote.</p>
+
+    <div class="candidate-grid">
+        <div class="candidate-card">
+            <div class="avatar blue">A</div>
+            <h3>Candidate A</h3>
+            <p>Symbol: ★</p>
+            <button class="vote-btn" data-index="0">Vote Now</button>
+        </div>
+
+        <div class="candidate-card">
+            <div class="avatar green">B</div>
+            <h3>Candidate B</h3>
+            <p>Symbol: ◆</p>
+            <button class="vote-btn" data-index="1">Vote Now</button>
+        </div>
+
+        <div class="candidate-card">
+            <div class="avatar purple">C</div>
+            <h3>Candidate C</h3>
+            <p>Symbol: ☀</p>
+            <button class="vote-btn" data-index="2">Vote Now</button>
+        </div>
+    </div>
+
+    <p id="message" class="message">
+        Demo mode: votes are stored only in this browser session.
+    </p>
+</section>
+
+<section class="section results" id="results">
+    <p class="tag">ELECTION SUMMARY</p>
+    <h2>Voting Results</h2>
+    <div id="resultBox">
+        <p>No votes have been cast yet.</p>
+    </div>
+    <button id="resetBtn" class="reset-btn">Reset Demo Votes</button>
+</section>
+
+<footer>
+    <h3>✓ VoteSphere</h3>
+    <p>College Mini Project | Voting Management System</p>
+    <small>Educational demonstration only. Not for real elections.</small>
+</footer>
+
+<script>
+    const candidates = [
+        { name: "Candidate A", symbol: "★", votes: 0 },
+        { name: "Candidate B", symbol: "◆", votes: 0 },
+        { name: "Candidate C", symbol: "☀", votes: 0 }
+    ];
+
+    let hasVoted = false;
+
+    const message = document.getElementById("message");
+    const resultBox = document.getElementById("resultBox");
+
+    document.querySelectorAll(".vote-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            if (hasVoted) {
+                message.textContent =
+                    "You have already voted in this demo. Reset to try again.";
+                return;
+            }
+
+            const index = Number(this.dataset.index);
+            candidates[index].votes++;
+            hasVoted = true;
+
+            document.querySelectorAll(".vote-btn").forEach(btn => {
+                btn.disabled = true;
+            });
+
+            message.textContent =
+                "Demo vote recorded for " + candidates[index].name + ".";
+
+            showResults();
+        });
+    });
+
+    function showResults() {
+        const total = candidates.reduce(
+            (sum, candidate) => sum + candidate.votes, 0
+        );
+
+        document.getElementById("totalVotes").textContent = total;
+
+        if (total === 0) {
+            resultBox.innerHTML = "<p>No votes have been cast yet.</p>";
+            return;
+        }
+
+        const maxVotes = Math.max(
+            ...candidates.map(candidate => candidate.votes)
+        );
+
+        const winners = candidates.filter(
+            candidate => candidate.votes === maxVotes
+        );
+
+        let winnerText = winners.length > 1
+            ? "Current result: Tie"
+            : "Current leader: " + winners[0].name;
+
+        let html = "<h3>" + winnerText + "</h3>";
+
+        candidates.forEach(candidate => {
+            const percentage = Math.round(candidate.votes / total * 100);
+
+            html += `
+                <div class="result-row">
+                    <p>${candidate.name} ${candidate.symbol}
+                    <strong>${candidate.votes} vote(s)</strong></p>
+                    <div class="progress">
+                        <div class="progress-fill"
+                             style="width:${percentage}%"></div>
+                    </div>
+                </div>`;
+        });
+
+        resultBox.innerHTML = html;
+    }
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+        candidates.forEach(candidate => candidate.votes = 0);
+        hasVoted = false;
+
+        document.querySelectorAll(".vote-btn").forEach(button => {
+            button.disabled = false;
+        });
+
+        message.textContent = "Demo votes reset. You can vote again.";
+        showResults();
+    });
+</script>
+
+</body>
+</html>
